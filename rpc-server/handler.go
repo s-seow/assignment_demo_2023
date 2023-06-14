@@ -124,4 +124,3 @@ func getRoomID(chat string) (string, error) {
 
 	return roomID, nil
 }
-}
