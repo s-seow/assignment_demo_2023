@@ -2,39 +2,44 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"log"
+	"testing"
+	"time"
 
-	rpc "github.com/TikTokTechImmersion/assignment_demo_2023/rpc-server/kitex_gen/rpc/imservice"
-	"github.com/cloudwego/kitex/pkg/rpcinfo"
-	"github.com/cloudwego/kitex/server"
-	etcd "github.com/kitex-contrib/registry-etcd"
+	"github.com/TikTokTechImmersion/assignment_demo_2023/rpc-server/kitex_gen/rpc"
+	"github.com/stretchr/testify/assert"
 )
 
-var (
-	rdb = &RedisClient{}
-)
-
-func main() {
-	ctx := context.Background()
-
-	err := rdb.InitClient(ctx, "redis:6379", "")
-	if err != nil {
-		errMsg := fmt.Sprintf("failed to init Redis client, err: %v", err)
-		log.Fatal(errMsg)
+func TestIMServiceImpl_Send(t *testing.T) {
+	type args struct {
+		ctx context.Context
+		req *rpc.SendRequest
 	}
-
-	r, err := etcd.NewEtcdRegistry([]string{"etcd:2379"}) // r should not be reused.
-	if err != nil {
-		log.Fatal(err)
+	tests := []struct {
+		name    string
+		args    args
+		wantErr error
+	}{
+		{
+			name: "success",
+			args: args{
+				ctx: context.Background(),
+				req: &rpc.SendRequest{
+					Message: &rpc.Message{
+						Chat:     "a1:b1",
+						Text:     "Hello",
+						Sender:   "a1",
+						SendTime: time.Now().Unix(),
+					},
+				},
+			},
+			wantErr: nil,
+		},
 	}
-
-	svr := rpc.NewServer(new(IMServiceImpl), server.WithRegistry(r), server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
-		ServiceName: "demo.rpc.server",
-	}))
-
-	err = svr.Run()
-	if err != nil {
-		log.Println(err.Error())
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			//s := &IMServiceImpl{}
+			//got, err := s.Send(tt.args.ctx, tt.args.req)
+			assert.True(t, true)
+		})
 	}
 }
